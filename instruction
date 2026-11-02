@@ -277,4 +277,21 @@ ps -eo pid,etime,cmd | grep worker    # PID воркера стабилен, в 
 
 Если захотите, следующим шагом могу оформить это в чек-лист для отчёта по валидации уязвимости или расписать вариант воспроизведения через TLS-проверку (tcp_tls).
 
+-----
+
+stream {
+    match hc4096 {
+        expect ^~ "OK";
+    }
+
+    upstream repro_hc4096 {
+        server 127.0.0.1:19001;    # порт вашего фейкового бэкенда (9001/19001 — как договорились в шаге 5)
+        check interval=1000 rise=1 fall=1 timeout=3000 default_down=false type=tcp match=hc4096;
+    }
+
+    server {
+        listen 16000;
+        proxy_pass repro_hc4096;
+    }
+}
 
