@@ -295,3 +295,6 @@ stream {
     }
 }
 
+---
+
+python3 -c "import socket; s=socket.create_connection(('127.0.0.1',19001)); d=s.recv(4096); print('Длина:',len(d),'Начало:',repr(d[:10])); s.close()"
