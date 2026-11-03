@@ -298,3 +298,14 @@ stream {
 ---
 
 python3 -c "import socket; s=socket.create_connection(('127.0.0.1',19001)); d=s.recv(4096); print('Длина:',len(d),'Начало:',repr(d[:10])); s.close()"
+
+---
+stream {
+    check_shm_size 64k;                      # ← обход вашей ошибки mmap (было 1M)
+    match hc4096 { expect ^~ "OK"; }
+    upstream repro_hc4096 {
+        server 127.0.0.1:19001;
+        check interval=1000 rise=1 fall=1 timeout=3000 default_down=false type=tcp match=hc4096;
+    }
+    server { listen 16000; proxy_pass repro_hc4096; }
+}
